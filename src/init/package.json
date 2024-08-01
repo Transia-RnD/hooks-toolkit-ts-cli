@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "build": "js2wasm-cli contracts/base.ts build/",
+    "build": "hooks-toolkit-cli compile contracts/base.ts build/",
     "dev": "yarn run build && ts-node index.ts"
   },
   "author": {
