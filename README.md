@@ -11,7 +11,7 @@ Update the `HOOKS_COMPILE_HOST` variable.
 Install:
 
 ```bash
-npm i -g hooks-toolkit-cli
+npm i -g @transia/hooks-toolkit-cli
 ```
 
 Use:
@@ -34,13 +34,13 @@ This will compile the `contracts` directory and output the WASM files into the `
 Install:
 
 ```bash
-npm install hooks-toolkit-cli
+npm install @transia/hooks-toolkit-cli
 ```
 
 Usage:
 
 ```javascript
-import { buildDir } from "hooks-toolkit-cli";
+import { buildDir } from "@transia/hooks-toolkit-cli";
 
 const dirPath = "my/path/to/hooks/root/dir";
 const outDir = "my/build/wasm/directory";
