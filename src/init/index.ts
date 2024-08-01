@@ -1,10 +1,9 @@
 import {
   Client,
   Wallet,
-  Payment,
+  Invoke,
   SetHookFlags,
   TransactionMetadata,
-  xrpToDrops,
 } from "@transia/xrpl";
 import {
   createHookPayload,
@@ -13,22 +12,21 @@ import {
   Xrpld,
   ExecutionUtility,
 } from "@transia/hooks-toolkit";
+import "dotenv/config";
 
 export async function main(): Promise<void> {
-  const serverUrl = "wss:jshooks.xahau-test.net";
-  const client = new Client(serverUrl);
+  const client = new Client(process.env.XRPLD_WSS);
   await client.connect();
   client.networkID = await client.getNetworkID();
 
-  const aliceWallet = Wallet.fromSeed("ssbTMHrmEJP7QEQjWJH3a72LQipBM");
-  const bobWallet = Wallet.fromSeed("spkcsko6Ag3RbCSVXV2FJ8Pd4Zac1");
+  const aliceWallet = Wallet.fromSeed(process.env.ALICE_SEED);
 
   const hook = createHookPayload({
     version: 1,
     createFile: "base",
     namespace: "base",
     flags: SetHookFlags.hsfOverride,
-    hookOnArray: ["Invoke", "Payment"],
+    hookOnArray: ["Invoke"],
     fee: "100000",
   });
 
@@ -38,16 +36,12 @@ export async function main(): Promise<void> {
     hooks: [{ Hook: hook }],
   } as SetHookParams);
 
-  // PAYMENT IN
-
-  const builtTx: Payment = {
-    TransactionType: "Payment",
-    Account: bobWallet.classicAddress,
-    Destination: aliceWallet.classicAddress,
-    Amount: xrpToDrops(10),
+  const builtTx: Invoke = {
+    TransactionType: "Invoke",
+    Account: aliceWallet.classicAddress,
   };
   const result = await Xrpld.submit(client, {
-    wallet: bobWallet,
+    wallet: aliceWallet,
     tx: builtTx,
   });
 

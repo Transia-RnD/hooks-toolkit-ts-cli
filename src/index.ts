@@ -2,11 +2,12 @@
 
 import { Command } from "commander";
 import { buildFile } from "./js2wasm/build";
-import { mkdir, statSync } from "fs";
+import { mkdir, statSync, writeFileSync, readFileSync } from "fs";
 import * as esbuild from "esbuild";
 import * as fs from "fs";
 import * as path from "path";
 import { addListeners, ISelect } from "./debug";
+import axios from "axios";
 
 const copyFiles = (source: string, destination: string) => {
   fs.readdirSync(source).forEach((file) => {
@@ -55,6 +56,36 @@ const initCommand = async (type: "c" | "js", folderName: string) => {
         type === "c" ? "CHooks" : "JSHooks"
       } project in ${newProjectDir}`
     );
+    try {
+      const aliceResponse = await axios.post(
+        "https://jshooks.xahau-test.net/newcreds"
+      );
+      if (aliceResponse.data.error) {
+        console.error(aliceResponse.data.error);
+        process.exit(1);
+      }
+      if (aliceResponse.data.code === "tesSUCCESS") {
+        const aliceSecret = aliceResponse.data.secret;
+
+        const envFilePath = path.join(newProjectDir, ".env");
+        const envObject = {
+          HOOKS_COMPILE_HOST: "https://hook-buildbox.xrpl.org",
+          XRPLD_ENV: "testnet",
+          XRPLD_WSS: "wss://jshooks.xahau-test.net",
+          ALICE_SEED: aliceSecret,
+        };
+        const envContent = Object.entries(envObject)
+          .map(([key, value]) => `${key}=${value}`)
+          .join("\n");
+        writeFileSync(envFilePath, envContent, { encoding: "utf-8" });
+
+        console.log("Secrets saved to .env file.");
+      } else {
+        console.error("Failed to retrieve secrets from the server.");
+      }
+    } catch (error) {
+      console.error("Error making POST requests:", error);
+    }
   } else {
     console.error('Invalid type. Use "c" for CHooks or "js" for JSHooks.');
     process.exit(1);
@@ -120,6 +151,54 @@ const debugCommand = async (accountLabel: string, accountValue: string) => {
   addListeners(selectedAccount);
 };
 
+const newCredsCommand = async (name: string) => {
+  if (!name) {
+    console.error(`Invalid name.`);
+    process.exit(1);
+  }
+
+  const envFilePath = path.join(process.cwd(), ".env");
+
+  // Read the existing .env file
+  let envContent = "";
+  try {
+    envContent = readFileSync(envFilePath, "utf-8");
+  } catch (error) {
+    console.error("Error reading .env file:", error);
+    process.exit(1);
+  }
+
+  // Generate a new credential
+  let newSecret;
+  try {
+    const response = await axios.post(
+      "https://jshooks.xahau-test.net/newcreds"
+    );
+    if (response.data.code === "tesSUCCESS") {
+      newSecret = response.data.secret;
+    } else {
+      console.error("Failed to retrieve secret from the server.");
+      process.exit(1);
+    }
+  } catch (error) {
+    console.error("Error making POST request:", error);
+    process.exit(1);
+  }
+
+  // Add the new credential to the .env content
+  const newEnvLine = `${name.toUpperCase()}_SEED=${newSecret}\n`;
+  const updatedEnvContent = envContent + newEnvLine;
+
+  // Write the updated .env file
+  try {
+    writeFileSync(envFilePath, updatedEnvContent, "utf-8");
+    console.log(`Added new credential for ${name} to .env file.`);
+  } catch (error) {
+    console.error("Error writing to .env file:", error);
+    process.exit(1);
+  }
+};
+
 export async function main() {
   const program = new Command();
 
@@ -137,6 +216,11 @@ export async function main() {
     .command("debug <accountLabel> <accountValue>")
     .description("Debug with a selected account")
     .action(debugCommand);
+
+  program
+    .command("newcreds <name>")
+    .description("Create new credentials for an account")
+    .action(newCredsCommand);
 
   await program.parseAsync(process.argv);
 }
