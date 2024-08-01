@@ -1,32 +1,49 @@
-# JS2WasmCli
+# Hooks Toolkit CLI
 
-## Add .env variables
+## Add .env Variables
 
 Copy the `.env.sample` to `.env`.
 
-Update the `HOOKS_COMPILE_HOST` variable
+Update the `HOOKS_COMPILE_HOST` variable.
 
-## Global Usage (For using as a cli)
+## Global Usage (For Using as a CLI)
 
 Install:
 
-`npm i -g js2wasm-cli`
+```bash
+npm i -g hooks-toolkit-cli
+```
 
 Use:
 
-`js2wasm-cli contracts build`
+You can initialize a new project by running:
 
-> This will build the `contracts` directory and output the wasm files into the `build` directory.
-
-## SDK Usage (For using as an sdk)
-
-`npm install js2wasm-cli`
-
+```bash
+hooks-toolkit-cli init
 ```
-import { buildDir } from "js2wasm-cli";
+To build the contracts, run:
 
-const dirPath = "my/path/to/hooks/root/dir"
-const outDir = "my/build/wasm/directory"
+```bash
+hooks-toolkit-cli compile contracts build
+```
+
+This will compile the `contracts` directory and output the WASM files into the `build` directory.
+
+## SDK Usage (For Using as an SDK)
+
+Install:
+
+```bash
+npm install hooks-toolkit-cli
+```
+
+Usage:
+
+```javascript
+import { buildDir } from "hooks-toolkit-cli";
+
+const dirPath = "my/path/to/hooks/root/dir";
+const outDir = "my/build/wasm/directory";
 await buildDir(dirPath, outDir);
 ```
 
@@ -34,12 +51,18 @@ await buildDir(dirPath, outDir);
 
 ### Build Repo
 
-`yarn run build`
+```bash
+yarn run build
+```
 
 ### Build Executable Package
 
-`pkg .`
+```bash
+pkg .
+```
 
 ### Publish NPM Package
 
-`npm publish`
+```bash
+npm publish --access=public
+```
