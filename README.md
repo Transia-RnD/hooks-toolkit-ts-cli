@@ -29,6 +29,12 @@ hooks-toolkit-cli compile contracts build
 
 This will compile the `contracts` directory and output the WASM files into the `build` directory.
 
+To listen to the debug stream, run:
+
+```bash
+hooks-toolkit-cli debug "Account 1" rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn
+```
+
 ## SDK Usage (For Using as an SDK)
 
 Install:

@@ -6,6 +6,7 @@ import { mkdir, statSync } from "fs";
 import * as esbuild from "esbuild";
 import * as fs from "fs";
 import * as path from "path";
+import { addListeners, ISelect } from "./debug";
 
 const copyFiles = (source: string, destination: string) => {
   fs.readdirSync(source).forEach((file) => {
@@ -36,8 +37,8 @@ const clean = (filePath: string, outputPath?: string): string => {
   return cleanedCode;
 };
 
-const initCommand = async (type: 'c' | 'js', folderName: string) => {
-  const templateDir = path.join(__dirname, 'init');
+const initCommand = async (type: "c" | "js", folderName: string) => {
+  const templateDir = path.join(__dirname, "init");
   const newProjectDir = path.join(process.cwd(), folderName);
 
   if (fs.existsSync(newProjectDir)) {
@@ -47,9 +48,13 @@ const initCommand = async (type: 'c' | 'js', folderName: string) => {
 
   fs.mkdirSync(newProjectDir, { recursive: true });
 
-  if (type === 'c' || type === 'js') {
+  if (type === "c" || type === "js") {
     copyFiles(templateDir, newProjectDir);
-    console.log(`Created ${type === 'c' ? 'CHooks' : 'JSHooks'} project in ${newProjectDir}`);
+    console.log(
+      `Created ${
+        type === "c" ? "CHooks" : "JSHooks"
+      } project in ${newProjectDir}`
+    );
   } else {
     console.error('Invalid type. Use "c" for CHooks or "js" for JSHooks.');
     process.exit(1);
@@ -106,18 +111,32 @@ const compileCommand = async (inPath: string, outDir: string) => {
   }
 };
 
+const debugCommand = async (accountLabel: string, accountValue: string) => {
+  const selectedAccount: ISelect | null = {
+    label: accountLabel,
+    value: accountValue,
+  };
+
+  addListeners(selectedAccount);
+};
+
 export async function main() {
   const program = new Command();
 
   program
-    .command('init <type> <folderName>')
-    .description('Initialize a new project')
+    .command("init <type> <folderName>")
+    .description("Initialize a new project")
     .action(initCommand);
 
   program
-    .command('compile <inPath> [outDir]')
-    .description('Compile TypeScript files')
+    .command("compile <inPath> [outDir]")
+    .description("Compile TypeScript files")
     .action(compileCommand);
+
+  program
+    .command("debug <accountLabel> <accountValue>")
+    .description("Debug with a selected account")
+    .action(debugCommand);
 
   await program.parseAsync(process.argv);
 }
