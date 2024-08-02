@@ -1,6 +1,6 @@
 {
   "name": "@transia/hooks-toolkit-cli",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "dist/npm/index.js",
   "files": [
