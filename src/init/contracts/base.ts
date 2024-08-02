@@ -1,6 +1,9 @@
-const Hook = (arg) => {
-  trace('Base.c: Called.', 0, false)
-  return accept('base: Finished.', 0)
-}
+import { SUCCESS } from "jshooks-api";
 
-export { Hook }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const Hook = (arg: number) => {
+  trace("Base.c: Called.", 0, false);
+  return accept("base: Finished.", SUCCESS);
+};
+
+export { Hook };

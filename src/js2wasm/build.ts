@@ -37,9 +37,11 @@ function generateHash(dataBytes: Buffer) {
 
 export async function buildDir(dirPath: string, outDir: string): Promise<void> {
   // Reading all files in the directory tree
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let fileObjects: any[];
   try {
     fileObjects = readFiles(dirPath);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error(`Error reading files: ${error}`);
     process.exit(1);
@@ -86,7 +88,9 @@ export async function buildFile(
 }
 
 // Function to read all files in a directory tree
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function readFiles(dirPath: string): any[] {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const files: any[] = [];
   const fileNames = fs.readdirSync(dirPath);
   for (const fileName of fileNames) {
@@ -145,13 +149,12 @@ async function saveFileOrError(
     throw Error(result.message);
   } else {
     const binary = await decodeBinary(result.output);
-    console.log(generateHash(Buffer.from(binary)));
     console.log(
       `Hook Hash: ${ConsoleColor.Green}%s${ConsoleColor.Reset}`,
       `${generateHash(Buffer.from(binary))}`
     );
     console.log(
-      `Output: ${outDir}/${filename}.bc ${ConsoleColor.Blue}%s${ConsoleColor.Reset}`,
+      `Output: ${outDir}${filename}.bc ${ConsoleColor.Blue}%s${ConsoleColor.Reset}`,
       `${binary.byteLength}b`
     );
     fs.writeFileSync(
@@ -161,6 +164,7 @@ async function saveFileOrError(
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function buildWasm(fileObject: any, outDir: string) {
   const filename = fileObject.name.split(".")[0];
   // Sending API call to endpoint
@@ -203,6 +207,7 @@ export async function buildWasm(fileObject: any, outDir: string) {
     fs.mkdir(outDir, async () => {
       await saveFileOrError(outDir, filename, result);
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.log(`Error sending API call: ${error}`);
   }

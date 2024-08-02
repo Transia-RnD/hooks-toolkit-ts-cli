@@ -14,7 +14,8 @@
   "license": "ISC",
   "dependencies": {
     "@transia/hooks-toolkit": "^2.0.0-alpha.3",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "jshooks-api": "^1.0.5"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3",

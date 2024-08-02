@@ -86,8 +86,11 @@ const base64DecodeMapOffset = 0x2b;
 const base64EOF = 0x3d;
 
 export function decodeRestrictedBase64ToBytes(encoded: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let ch: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let code: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let code2: any;
 
   const len = encoded.length;

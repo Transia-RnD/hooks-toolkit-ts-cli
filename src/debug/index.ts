@@ -25,6 +25,7 @@ const onClose = (e: CloseEvent) => {
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const onMessage = (event: any) => {
   // Ping returns just account address, if we get that
   // response we don't need to log anything

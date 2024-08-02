@@ -15,11 +15,11 @@ import {
 import "dotenv/config";
 
 export async function main(): Promise<void> {
-  const client = new Client(process.env.XRPLD_WSS);
+  const client = new Client(process.env.XRPLD_WSS || "");
   await client.connect();
   client.networkID = await client.getNetworkID();
 
-  const aliceWallet = Wallet.fromSeed(process.env.ALICE_SEED);
+  const aliceWallet = Wallet.fromSeed(process.env.ALICE_SEED || "");
 
   const hook = createHookPayload({
     version: 1,
