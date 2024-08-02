@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "hooks-toolkit-cli compile contracts build/",
-    "dev": "yarn run build && ts-node src/index.ts"
+    "deploy": "yarn run build && ts-node src/index.ts"
   },
   "author": {
     "name": "Denis Angell",
