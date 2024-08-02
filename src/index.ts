@@ -39,7 +39,7 @@ const clean = (filePath: string, outputPath?: string): string => {
 };
 
 const initCommand = async (type: "c" | "js", folderName: string) => {
-  const templateDir = path.join(__dirname, "init");
+  const templateDir = path.join(__dirname, "init", type);
   const newProjectDir = path.join(process.cwd(), folderName);
 
   if (fs.existsSync(newProjectDir)) {
