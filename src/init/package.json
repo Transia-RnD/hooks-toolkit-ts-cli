@@ -2,10 +2,10 @@
   "name": "hooks-toolkit-init",
   "version": "0.0.1",
   "description": "",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "scripts": {
     "build": "hooks-toolkit-cli compile contracts/base.ts build/",
-    "dev": "yarn run build && ts-node index.ts"
+    "dev": "yarn run build && ts-node src/index.ts"
   },
   "author": {
     "name": "Denis Angell",
