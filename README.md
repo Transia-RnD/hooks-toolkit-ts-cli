@@ -21,13 +21,22 @@ You can initialize a new project by running:
 ```bash
 hooks-toolkit-cli init
 ```
-To build the contracts, run:
+
+To build the c contracts, run:
 
 ```bash
-hooks-toolkit-cli compile contracts build
+hooks-toolkit-cli compile-c contracts build
 ```
 
-This will compile the `contracts` directory and output the WASM files into the `build` directory.
+This will compile the `contracts` directory and output the `.wasm` files into the `build` directory.
+
+To build the js contracts, run:
+
+```bash
+hooks-toolkit-cli compile-js contracts/base.ts build
+```
+
+This will compile the `base.ts` file and output the `.bc` file into the `build` directory.
 
 To listen to the debug stream, run:
 

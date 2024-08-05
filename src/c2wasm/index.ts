@@ -2,20 +2,8 @@
 import axios from "axios";
 import fs from "fs";
 import path from "path";
-import { decodeBinary } from "./decodeBinary";
-import { createHash } from "crypto";
+import { decodeBinary } from "../2wasm/decodeBinary";
 import "dotenv/config";
-
-enum ConsoleColor {
-  Red = "\x1b[31m",
-  Green = "\x1b[32m",
-  Yellow = "\x1b[33m",
-  Blue = "\x1b[34m",
-  Magenta = "\x1b[35m",
-  Cyan = "\x1b[36m",
-  White = "\x1b[37m",
-  Reset = "\x1b[0m",
-}
 
 interface Task {
   name: string;
@@ -30,18 +18,11 @@ interface BuildResult {
   tasks: Task[];
 }
 
-function generateHash(dataBytes: Buffer) {
-  const hash = createHash("sha512").update(dataBytes).digest();
-  return hash.slice(0, 32).toString("hex").toUpperCase();
-}
-
 export async function buildDir(dirPath: string, outDir: string): Promise<void> {
   // Reading all files in the directory tree
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let fileObjects: any[];
   try {
     fileObjects = readFiles(dirPath);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error(`Error reading files: ${error}`);
     process.exit(1);
@@ -68,13 +49,12 @@ export async function buildFile(
   outDir: string
 ): Promise<void> {
   const fileContent = fs.readFileSync(dirPath, "utf-8");
-  if (!dirPath.includes(".js") && !dirPath.includes(".ts")) {
-    throw Error("Invalid file type. must be .js or .ts file");
+  if (!dirPath.includes(".c")) {
+    throw Error("Invalid file type. must be .c file");
   }
   const filename = dirPath.split("/").pop();
-  const filetype = filename?.split(".").pop();
   const fileObject = {
-    type: filetype,
+    type: "c",
     name: filename,
     options: "-O3",
     src: fileContent,
@@ -88,9 +68,7 @@ export async function buildFile(
 }
 
 // Function to read all files in a directory tree
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function readFiles(dirPath: string): any[] {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const files: any[] = [];
   const fileNames = fs.readdirSync(dirPath);
   for (const fileName of fileNames) {
@@ -98,18 +76,10 @@ export function readFiles(dirPath: string): any[] {
     const fileStat = fs.statSync(filePath);
     if (fileStat.isDirectory()) {
       files.push(...readFiles(filePath));
-    } else if (path.extname(fileName) === ".js") {
+    } else if (path.extname(fileName) === ".c") {
       const fileContent = fs.readFileSync(filePath, "utf-8");
       files.push({
-        type: "js",
-        name: fileName,
-        options: "-O3",
-        src: fileContent,
-      });
-    } else if (path.extname(fileName) === ".ts") {
-      const fileContent = fs.readFileSync(filePath, "utf-8");
-      files.push({
-        type: "ts",
+        type: "c",
         name: fileName,
         options: "-O3",
         src: fileContent,
@@ -149,34 +119,25 @@ async function saveFileOrError(
     throw Error(result.message);
   } else {
     const binary = await decodeBinary(result.output);
-    console.log(
-      `Hook Hash: ${ConsoleColor.Green}%s${ConsoleColor.Reset}`,
-      `${generateHash(Buffer.from(binary))}`
-    );
-    console.log(
-      `Output: ${outDir}${filename}.bc ${ConsoleColor.Blue}%s${ConsoleColor.Reset}`,
-      `${binary.byteLength}b`
-    );
     fs.writeFileSync(
-      path.join(outDir + "/" + filename + ".bc"),
-      Buffer.from(Buffer.from(binary).toString(), "hex")
+      path.join(outDir + "/" + filename + ".wasm"),
+      Buffer.from(binary)
     );
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function buildWasm(fileObject: any, outDir: string) {
-  const filename = fileObject.name.split(".")[0];
+  const filename = fileObject.name.split(".c")[0];
   // Sending API call to endpoint
   const body = JSON.stringify({
-    output: "bc",
+    output: "wasm",
     compress: true,
     strip: true,
     files: [fileObject],
   });
   try {
     const response = await axios.post(
-      `${process.env.HOOKS_COMPILE_HOST}/api/build/js`,
+      `${process.env.HOOKS_COMPILE_HOST}/api/build`,
       body,
       {
         headers: {
@@ -207,7 +168,6 @@ export async function buildWasm(fileObject: any, outDir: string) {
     fs.mkdir(outDir, async () => {
       await saveFileOrError(outDir, filename, result);
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.log(`Error sending API call: ${error}`);
   }

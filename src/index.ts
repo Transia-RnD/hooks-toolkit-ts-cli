@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { buildFile } from "./js2wasm/build";
+import { buildFile as buildJSFile } from "./js2wasm";
+import { buildFile as buildCFile, buildDir as buildCDir } from "./c2wasm";
 import { mkdir, statSync, writeFileSync, readFileSync } from "fs";
 import * as esbuild from "esbuild";
 import * as fs from "fs";
@@ -92,7 +93,7 @@ const initCommand = async (type: "c" | "js", folderName: string) => {
   }
 };
 
-const compileCommand = async (inPath: string, outDir: string) => {
+const compileJSCommand = async (inPath: string, outDir: string) => {
   if (!inPath) {
     console.error("Input path is required.");
     process.exit(1);
@@ -130,7 +131,7 @@ const compileCommand = async (inPath: string, outDir: string) => {
       format: "esm",
     });
     clean(newPath, newPath);
-    await buildFile(newPath, outDir);
+    await buildJSFile(newPath, outDir);
     return;
   }
 
@@ -138,7 +139,42 @@ const compileCommand = async (inPath: string, outDir: string) => {
   if (dirStat.isDirectory()) {
     throw Error("JS2Wasm Can ONLY build files");
   } else {
-    await buildFile(inPath, outDir);
+    await buildJSFile(inPath, outDir);
+  }
+};
+
+const compileCCommand = async (inPath: string, outDir: string) => {
+  if (!inPath) {
+    console.error("Input path is required.");
+    process.exit(1);
+  }
+
+  if (!outDir) {
+    console.error("Output directory path is required.");
+    process.exit(1);
+  }
+
+  try {
+    const outStat = statSync(outDir);
+    if (!outStat.isDirectory()) {
+      console.error("Output path must be a directory.");
+      process.exit(1);
+    }
+  } catch (error: any) {
+    mkdir(outDir, { recursive: true }, (err) => {
+      if (err) {
+        console.error(`Failed to create directory: ${outDir}`);
+        process.exit(1);
+      }
+      console.log(`Created directory: ${outDir}`);
+    });
+  }
+
+  const dirStat = fs.statSync(inPath);
+  if (dirStat.isDirectory()) {
+    await buildCDir(inPath, outDir);
+  } else {
+    await buildCFile(inPath, outDir);
   }
 };
 
@@ -208,9 +244,14 @@ export async function main() {
     .action(initCommand);
 
   program
-    .command("compile <inPath> [outDir]")
-    .description("Compile TypeScript files")
-    .action(compileCommand);
+    .command("compile-js <inPath> [outDir]")
+    .description("Compile JS/TS files")
+    .action(compileJSCommand);
+
+  program
+    .command("compile-c <inPath> [outDir]")
+    .description("Compile C files")
+    .action(compileCCommand);
 
   program
     .command("debug <accountLabel> <accountValue>")
