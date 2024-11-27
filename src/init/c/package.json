@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "build": "hooks-toolkit-cli compile contracts build/",
+    "build": "hooks-toolkit-cli compile-c contracts build/",
     "deploy": "yarn run build && ts-node src/index.ts"
   },
   "author": {
@@ -13,7 +13,7 @@
   },
   "license": "ISC",
   "dependencies": {
-    "@transia/hooks-toolkit": "^2.0.0-alpha.3",
+    "@transia/hooks-toolkit": "^2.0.0-alpha.4",
     "dotenv": "^16.3.1"
   },
   "devDependencies": {

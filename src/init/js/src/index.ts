@@ -43,6 +43,7 @@ export async function main(): Promise<void> {
   const result = await Xrpld.submit(client, {
     wallet: aliceWallet,
     tx: builtTx,
+    debugStream: true,
   });
 
   const hookExecutions = await ExecutionUtility.getHookExecutionsFromMeta(
